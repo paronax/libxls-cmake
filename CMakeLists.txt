@@ -12,10 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Sources declaration
 #----------------------------------------------------------------------------------------
 set(LIBXLS_PATH "libxls")
-set(LIBXLS_C_SRC_PATH "libxls/Src")
+set(LIBXLS_C_SRC_PATH "libxls/src")
 set(LIBXLS_C_INCLUDE_PATH "${LIBXLS_PATH}/include")
 set(LIBXLS_CXX_PATH "${LIBXLS_PATH}/cplusplus")
 
+# C & Cxx sources
 set(C_LIB_SOURCES
         ${LIBXLS_C_SRC_PATH}/endian.c
         ${LIBXLS_C_SRC_PATH}/locale.c
@@ -36,6 +37,14 @@ set(CXX_LIB_SOURCES
         ${LIBXLS_CXX_PATH}/XlsReader.cpp)
 set(CXX_LIB_HEADERS
         ${LIBXLS_CXX_PATH}/XlsReader.h)
+
+#----------------------------------------------------------------------------------------
+# Flags
+#----------------------------------------------------------------------------------------
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_C_FLAGS "-Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -pedantic-errors")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wstrict-prototypes -Wno-unused-parameter -pedantic-errors")
+endif()
 
 #----------------------------------------------------------------------------------------
 # Checks & config generation
@@ -77,3 +86,22 @@ target_link_libraries(libxlsreader_cxx libxlsreader)
 add_executable(xls_cxx ${LIBXLS_CXX_PATH}/main.cpp)
 target_include_directories(xls_cxx PUBLIC ${PROJECT_BINARY_DIR} ${LIBXLS_C_INCLUDE_PATH} ${LIBXLS_CXX_PATH})
 target_link_libraries(xls_cxx libxlsreader_cxx libxlsreader)
+
+add_executable(xls2csv ${LIBXLS_C_SRC_PATH}/xls2csv.c)
+target_include_directories(xls2csv PUBLIC ${PROJECT_BINARY_DIR} ${LIBXLS_C_INCLUDE_PATH})
+target_link_libraries(xls2csv libxlsreader)
+
+#----------------------------------------------------------------------------------------
+# Tests
+#----------------------------------------------------------------------------------------
+enable_testing()
+
+add_executable(test1 ${LIBXLS_PATH}/test/test.c)
+target_include_directories(test1 PUBLIC ${PROJECT_BINARY_DIR} ${LIBXLS_C_INCLUDE_PATH})
+target_link_libraries(test1 libxlsreader)
+add_test(NAME test COMMAND test1 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/libxls)
+
+add_executable(test2 ${LIBXLS_PATH}/test/test2.c)
+target_include_directories(test2 PUBLIC ${PROJECT_BINARY_DIR} ${LIBXLS_C_INCLUDE_PATH})
+target_link_libraries(test2 libxlsreader)
+add_test(NAME test2 COMMAND test2)
