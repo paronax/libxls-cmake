@@ -49,7 +49,11 @@
 #cmakedefine01 HAVE_WCHAR_H
 
 /* Define as const if the declaration of iconv() needs const. */
-#undef ICONV_CONST
+#if defined(_MSC_VER) && defined(HAVE_ICONV)
+#define ICONV_CONST const
+#else
+#define ICONV_CONST
+#endif
 
 /* Major version */
 #define LIBXLS_MAJOR_VERSION 1
